@@ -5,6 +5,9 @@ namespace App\Entity;
 use App\Repository\UtilisateurRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+
 
 #[ORM\Entity(repositoryClass: UtilisateurRepository::class)]
 class Utilisateur
@@ -44,6 +47,53 @@ class Utilisateur
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $anneeNaissance = null;
+
+    #[ORM\OneToMany(targetEntity: Candidature::class, mappedBy: 'utilisateur', cascade: ['persist', 'remove'])]
+    private Collection $candidatures;
+
+    public function getRoles(): array
+    {
+        $roles = $this->roles;
+        $roles[] = 'ROLE_USER'; // Default role
+        return array_unique($roles);
+    }
+
+    public function setRoles(array $roles): self
+    {
+        $this->roles = $roles;
+        return $this;
+    }
+
+    public function __construct()
+    {
+        $this->candidatures = new ArrayCollection();
+    }
+
+    //Relationship mode for candidature
+    public function getCandidatures(): Collection
+    {
+        return $this->candidatures;
+    }
+
+    public function addCandidature(Candidature $candidature): self
+    {
+        if (!$this->candidatures->contains($candidature)) {
+            $this->candidatures[] = $candidature;
+            $candidature->setUtilisateur($this);
+        }
+        return $this;
+    }
+
+    public function removeCandidature(Candidature $candidature): self
+    {
+        if ($this->candidatures->removeElement($candidature)) {
+            // Set the owning side to null (unless already changed)
+            if ($candidature->getUtilisateur() === $this) {
+                $candidature->setUtilisateur(null);
+            }
+        }
+        return $this;
+    }
 
     public function getId(): ?int
     {
@@ -155,19 +205,6 @@ class Utilisateur
     {
         $this->anneeNaissance = $anneeNaissance;
 
-        return $this;
-    }
-
-    public function getRoles(): array
-    {
-        $roles = $this->roles;
-        $roles[] = 'ROLE_USER'; // Default role
-        return array_unique($roles);
-    }
-
-    public function setRoles(array $roles): self
-    {
-        $this->roles = $roles;
         return $this;
     }
 

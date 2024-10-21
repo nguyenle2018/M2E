@@ -14,6 +14,14 @@ class Candidature
     #[ORM\Column]
     private ?int $id = null;
 
+    #[ORM\ManyToOne(targetEntity: Utilisateur::class, inversedBy: "candidatures")]
+    #[ORM\JoinColumn(nullable: false)]
+    private Utilisateur $utilisateur;
+
+    #[ORM\ManyToOne(targetEntity: Mission::class, inversedBy: "candidatures")]
+    #[ORM\JoinColumn(nullable: false)]
+    private Mission $mission;
+
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $dateInscription = null;
 
@@ -33,7 +41,6 @@ class Candidature
     public function setDateInscription(?\DateTimeInterface $dateInscription): static
     {
         $this->dateInscription = $dateInscription;
-
         return $this;
     }
 
@@ -45,10 +52,26 @@ class Candidature
     public function setStatus(string $status): static
     {
         $this->status = $status;
-
         return $this;
     }
 
+    public function getUtilisateur(): ?Utilisateur
+    {
+        return $this->utilisateur;
+    }
+    public function setUtilisateur(Utilisateur $utilisateur): self
+    {
+        $this->utilisateur = $utilisateur;
+        return $this;
+    }
 
-
+    public function getMission(): ?Mission
+    {
+        return $this->mission;
+    }
+    public function setMission(Mission $mission): self
+    {
+        $this->mission = $mission;
+        return $this;
+    }
 }
