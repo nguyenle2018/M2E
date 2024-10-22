@@ -2,14 +2,17 @@
 
 namespace App\Entity;
 
-use App\Repository\AssocitionRepository;
+use App\Repository\AssociationRepository;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 
 
-#[ORM\Entity(repositoryClass: AssocitionRepository::class)]
-class Association
+
+#[ORM\Entity(repositoryClass: AssociationRepository::class)]
+class Association implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -28,6 +31,12 @@ class Association
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $siteInternet = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $telephone = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $nomContact = null;
+
     #[ORM\OneToMany(targetEntity: Mission::class, mappedBy: "association")]
     private Collection $missions;
 
@@ -36,6 +45,29 @@ class Association
         $this->missions = new ArrayCollection();
     }
 
+
+    public function getRoles(): array
+    {
+        return ['ROLE_ASSOCIATION'];
+    }
+    /**
+     * A visual identifier that represents this user.
+     *
+     * @see UserInterface
+     */
+    public function getUserIdentifier(): string
+    {
+        return (string) $this->email;
+    }
+
+    /**
+     * @see UserInterface
+     */
+    public function eraseCredentials(): void
+    {
+        // If you store any temporary, sensitive data on the user, clear it here
+        // $this->plainPassword = null;
+    }
     public function getMissions(): Collection
     {
         return $this->missions;
@@ -106,6 +138,26 @@ class Association
     public function setSiteInternet(?string $siteInternet): static
     {
         $this->siteInternet = $siteInternet;
+        return $this;
+    }
+    public function getTelephone(): ?string
+    {
+        return $this->telephone;
+    }
+
+    public function setTelephone(?string $telephone): self
+    {
+        $this->telephone = $telephone;
+        return $this;
+    }
+    public function getNomContact(): ?string
+    {
+        return $this->nomContact;
+    }
+
+    public function setNomContact(?string $nomContact): self
+    {
+        $this->nomContact = $nomContact;
         return $this;
     }
     public function __toString(): string
